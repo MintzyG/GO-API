@@ -1,0 +1,8 @@
+Invoke-RestMethod -Uri "http://localhost:8080/albums" -Method Post -Headers @{"Content-Type" = "application/json"} -Body '{
+    "id": "4",
+    "title": "The Modern Sound of Betty Carter",
+    "artist": "Betty",
+    "price": 59.99
+}'
+
+Invoke-RestMethod -Uri "http://localhost:8080/albums" -Method Get -Headers @{"Content-Type" = "application/json"}
