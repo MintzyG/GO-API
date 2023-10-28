@@ -3,20 +3,21 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
 type album struct {
-	ID     string
+	ID     int
 	Title  string
 	Artist string
 	Price  float64
 }
 
 var albums = []album{
-	{ID: "1", Title: "Blue Train", Artist: "John Coltrane", Price: 56.99},
-	{ID: "2", Title: "Jeru", Artist: "Gerry Mulligan", Price: 17.99},
-	{ID: "3", Title: "Sarah Vaughan and Clifford Brown", Artist: "Sarah Vaughan", Price: 39.99},
+	{ID: 1, Title: "Blue Train", Artist: "John Coltrane", Price: 56.99},
+	{ID: 2, Title: "Jeru", Artist: "Gerry Mulligan", Price: 17.99},
+	{ID: 3, Title: "Sarah Vaughan and Clifford Brown", Artist: "Sarah Vaughan", Price: 39.99},
 }
 
 func main() {
@@ -35,6 +36,7 @@ func getAlbums(c *gin.Context) {
 
 func postAlbums(c *gin.Context) {
 	var newAlbum album
+	var exists bool
 
 	if err := c.BindJSON(&newAlbum); err != nil {
 		return
@@ -42,9 +44,15 @@ func postAlbums(c *gin.Context) {
 
 	for _, a := range albums {
 		if a.ID == newAlbum.ID {
-			c.IndentedJSON(http.StatusCreated, gin.H{"Message": "ID already taken, added to last one"})
-			return
+			exists = true
 		}
+	}
+
+	if exists {
+		newAlbum.ID = len(albums) + 1
+		c.IndentedJSON(http.StatusCreated, gin.H{"Message": "ID already taken, added to last one"})
+		albums = append(albums, newAlbum)
+		return
 	}
 
 	albums = append(albums, newAlbum)
@@ -55,7 +63,8 @@ func getAlbumByID(c *gin.Context) {
 	id := c.Param("id")
 
 	for _, a := range albums {
-		if a.ID == id {
+		idI, _ := strconv.Atoi(id)
+		if a.ID == idI {
 			c.IndentedJSON(http.StatusOK, a)
 			return
 		}
